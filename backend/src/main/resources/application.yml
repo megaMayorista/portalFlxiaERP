@@ -8,6 +8,9 @@ spring:
     import: optional:file:${PORTAL_INSTANCES_FILE:./config/instancias.yml}
   jackson:
     time-zone: America/Guayaquil
+    deserialization:
+      # A body with fields the API does not know is rejected (400), never ignored.
+      fail-on-unknown-properties: true
   # The portal's own small database (accounts, sessions, attempts, downloads).
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5465}/${DB_NAME:portal_flxia}

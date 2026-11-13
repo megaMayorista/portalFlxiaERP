@@ -108,7 +108,7 @@ export default function DocumentsPage() {
       <Hero name={user.fullName} data={data} loaded={loaded} />
 
       <div ref={listTop} className="flex scroll-mt-24 flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Tipo de comprobante">
+        <div className="flex flex-wrap gap-2 xl:flex-1" role="radiogroup" aria-label="Tipo de comprobante">
           {chips.map(({ value, label, count, icon: Icon }) => {
             const active = type === value;
             return (
@@ -134,14 +134,14 @@ export default function DocumentsPage() {
           })}
         </div>
 
-        <div className="w-full xl:max-w-md">
+        <div className="w-full xl:w-[36rem] xl:shrink-0 2xl:w-[42rem]">
           <div className="relative">
             <FiSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
             <input
               type="text"
               value={search}
               onChange={(event) => setSearch(guardChange(event, { mode: 'text', max: LIMITS.search }).value)}
-              placeholder="Buscar por fecha, número, clave o emisor"
+              placeholder="Buscar por fecha, número, clave de acceso o emisor"
               aria-label="Buscar por fecha, número, clave de acceso o emisor"
               spellCheck={false}
               className="input rounded-full py-3 pl-11 pr-11"
@@ -219,11 +219,7 @@ function Hero({ name, data, loaded }) {
           <h1 className="mt-3 font-display text-2xl font-bold leading-tight sm:text-3xl xl:text-4xl">
             Hola, {titleCase(name)}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
-            Descargue el PDF (RIDE) y el XML autorizado de las facturas y notas de crédito que le emitieron los negocios
-            que trabajan con FluxoERP.
-          </p>
-          <div className="mt-6 grid max-w-2xl grid-cols-3 gap-2 sm:gap-3">
+          <div className="mt-5 grid max-w-2xl grid-cols-3 gap-2 sm:gap-3">
             {stats.map((stat) => (
               <div key={stat.label} className="rounded-2xl border border-white/15 bg-white/10 px-3 py-3 backdrop-blur sm:px-4">
                 <p className="font-display text-2xl font-bold tabular sm:text-3xl">{loaded ? stat.value : '—'}</p>

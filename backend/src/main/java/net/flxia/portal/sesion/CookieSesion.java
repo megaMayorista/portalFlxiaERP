@@ -20,13 +20,22 @@ import java.util.regex.Pattern;
 @Component
 public class CookieSesion {
 
-    public static final String NAME = "portal_session";
+    /**
+     * In production (https) the cookie carries the __Host- prefix: the browser
+     * only accepts it with Secure, Path=/ and no Domain, so no subdomain of
+     * flxia.net and no plain-http page can plant or overwrite it. Locally
+     * (http) the prefix is not allowed and the plain name is used.
+     */
+    private static final String SECURE_NAME = "__Host-portal_session";
+    private static final String LOCAL_NAME = "portal_session";
     private static final Pattern TOKEN = Pattern.compile("^[A-Za-z0-9_-]{43}$");
 
     private final PropiedadesPortal properties;
+    private final String name;
 
     public CookieSesion(PropiedadesPortal properties) {
         this.properties = properties;
+        this.name = properties.cookieSecure() ? SECURE_NAME : LOCAL_NAME;
     }
 
     public Optional<String> read(HttpServletRequest request) {
@@ -35,7 +44,7 @@ public class CookieSesion {
             return Optional.empty();
         }
         for (Cookie cookie : cookies) {
-            if (NAME.equals(cookie.getName()) && cookie.getValue() != null && TOKEN.matcher(cookie.getValue()).matches()) {
+            if (name.equals(cookie.getName()) && cookie.getValue() != null && TOKEN.matcher(cookie.getValue()).matches()) {
                 return Optional.of(cookie.getValue());
             }
         }
@@ -51,7 +60,7 @@ public class CookieSesion {
     }
 
     private ResponseCookie.ResponseCookieBuilder base(String value) {
-        return ResponseCookie.from(NAME, value)
+        return ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(properties.cookieSecure())
                 .sameSite("Strict")

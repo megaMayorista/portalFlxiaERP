@@ -10,6 +10,17 @@ import ProfilePage from './paginas/Perfil';
 import RecoverPage from './paginas/RecuperarClave';
 import { setForbiddenHandler } from './utilidades/api';
 
+/**
+ * nginx serves its own errors (blocked attacks, probes, the API opened in the
+ * browser) with copies of index.html that carry <meta name="portal-error">.
+ * Then the app shows that view whatever the address is, so a 403 or 404 always
+ * looks the same.
+ */
+const FORCED_ERROR = (() => {
+  const code = Number(document.querySelector('meta[name="portal-error"]')?.getAttribute('content'));
+  return code === 403 || code === 404 ? code : null;
+})();
+
 function Loading() {
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -47,6 +58,8 @@ export default function App() {
   useEffect(() => {
     setForbiddenHandler(() => navigate('/acceso-denegado', { replace: true }));
   }, [navigate]);
+
+  if (FORCED_ERROR) return <ErrorPage code={FORCED_ERROR} />;
 
   return (
     <Routes>

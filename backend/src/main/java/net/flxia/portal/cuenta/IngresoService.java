@@ -40,6 +40,8 @@ public class IngresoService {
     private final CorreoService mail;
     private final BCryptPasswordEncoder encoder;
     private final PropiedadesPortal properties;
+    /** Hash of a random value, only used to spend the same time as a real check. */
+    private final String timingHash;
 
     public IngresoService(CuentaRepository accounts, SesionRepository sessions, IntentoRepository attempts,
                           LimiteIntentos limits, ComprobanteService documents, CorreoService mail,
@@ -52,6 +54,7 @@ public class IngresoService {
         this.mail = mail;
         this.encoder = encoder;
         this.properties = properties;
+        this.timingHash = encoder.encode(GeneradorSecretos.sessionToken());
     }
 
     /** A new session: the token goes in the cookie, the account to the screen. */
@@ -77,6 +80,9 @@ public class IngresoService {
         if (account == null) {
             // First entry: the password must be the identification itself.
             if (!password.equals(identification)) {
+                // Same bcrypt cost as a real account, so the response time does
+                // not reveal which identifications already have an account.
+                encoder.matches(password, timingHash);
                 return fail(identification, ip);
             }
             ResultadoParalelo<DatosCliente> found = documents.customer(identification);
