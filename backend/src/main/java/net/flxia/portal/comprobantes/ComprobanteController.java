@@ -40,7 +40,7 @@ public class ComprobanteController {
                                       @RequestParam(required = false) String from,
                                       @RequestParam(required = false) String to,
                                       @RequestParam(defaultValue = "1") int page,
-                                      @RequestParam(defaultValue = "10") int size) {
+                                      @RequestParam(defaultValue = "30") int size) {
         ComprobanteService.Filtro filter;
         try {
             filter = ComprobanteService.Filtro.valueOf(type.toUpperCase(Locale.ROOT));

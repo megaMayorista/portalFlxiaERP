@@ -1,13 +1,15 @@
-const DATE = new Intl.DateTimeFormat('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const MONEY = new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
-/** "2026-11-12T10:30:00" → "12/11/2026" (the ERP stores Ecuador local time). */
+/**
+ * "2026-11-12T10:30:00" → "12-11-2026" (the ERP stores Ecuador local time).
+ * With dashes, not slashes: it is the same text the search accepts ("/" is a
+ * forbidden character), so a date can be copied from the list into the search.
+ */
 export function formatDate(value) {
   if (!value) return '—';
-  const [datePart] = String(value).split('T');
-  const [year, month, day] = datePart.split('-').map(Number);
-  if (!year) return '—';
-  return DATE.format(new Date(year, month - 1, day));
+  const [year, month, day] = String(value).split('T')[0].split('-');
+  if (!year || !month || !day) return '—';
+  return `${day}-${month}-${year}`;
 }
 
 export function formatMoney(value) {

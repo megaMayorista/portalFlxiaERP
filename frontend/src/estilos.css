@@ -27,6 +27,9 @@
   --good: 21 128 61;
   --warn: 161 98 7;
   --danger: 185 28 28;
+  /* Azul marino de Fluxo: menú activo y botones del portal (estilo SaciAPP). */
+  --navy: 11 58 110;
+  --navy-strong: 0 44 90;
   --line-alpha: 0.09;
   --line-strong-alpha: 0.16;
 }
@@ -50,6 +53,8 @@
   --good: 74 222 128;
   --warn: 250 204 21;
   --danger: 248 113 113;
+  --navy: 37 99 235;
+  --navy-strong: 59 130 246;
   --line-alpha: 0.10;
   --line-strong-alpha: 0.18;
 }
@@ -118,6 +123,10 @@
 
   .btn-primary {
     @apply btn bg-brand text-white shadow-brand hover:bg-brand-strong active:scale-[0.99];
+  }
+
+  .btn-navy {
+    @apply btn bg-navy text-white hover:bg-navy-strong active:scale-[0.99];
   }
 
   .btn-ghost {

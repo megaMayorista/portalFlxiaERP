@@ -22,13 +22,13 @@ function Loading() {
  * Pages that need a session. With a temporary password only the profile is
  * reachable, until it is changed (the backend enforces the same rule).
  */
-function Protected({ children, allowWhileForced = false }) {
+function Protected({ children, title, allowWhileForced = false }) {
   const { user, loading } = useSession();
   const location = useLocation();
   if (loading) return <Loading />;
   if (!user) return <Navigate to="/ingreso" replace state={{ from: location.pathname }} />;
   if (user.mustChangePassword && !allowWhileForced) return <Navigate to="/perfil" replace />;
-  return <PortalLayout>{children}</PortalLayout>;
+  return <PortalLayout title={title}>{children}</PortalLayout>;
 }
 
 function Home() {
@@ -44,8 +44,8 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/ingreso" element={loading ? <Loading /> : <LoginPage />} />
       <Route path="/recuperar" element={loading ? <Loading /> : <RecoverPage />} />
-      <Route path="/comprobantes" element={<Protected><DocumentsPage /></Protected>} />
-      <Route path="/perfil" element={<Protected allowWhileForced><ProfilePage /></Protected>} />
+      <Route path="/comprobantes" element={<Protected title="Comprobantes electrónicos recibidos"><DocumentsPage /></Protected>} />
+      <Route path="/perfil" element={<Protected title="Perfil de usuario" allowWhileForced><ProfilePage /></Protected>} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

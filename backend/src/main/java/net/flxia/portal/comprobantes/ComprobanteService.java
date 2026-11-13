@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +28,8 @@ public class ComprobanteService {
     public static final int MAX_PAGE_SIZE = 50;
     private static final Pattern ACCENTS = Pattern.compile("\\p{M}+");
     private static final Pattern NON_DIGITS = Pattern.compile("[^0-9]");
+    /** Same format as the list in the frontend (utilidades/formato.js). */
+    private static final DateTimeFormatter LIST_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private final RegistroInstancias registry;
     private final ConsultasERP queries;
@@ -73,10 +76,14 @@ public class ComprobanteService {
         return (from == null || !day.isBefore(from)) && (to == null || !day.isAfter(to));
     }
 
-    /** Number (with or without dashes), access key, issuer RUC or issuer name; accents ignored. */
+    /**
+     * Date as the list shows it (dd-MM-yyyy, also partial: "10-2026"), number
+     * (with or without dashes), access key, issuer RUC or issuer name; accents ignored.
+     */
     private static boolean matchesSearch(ComprobanteDTO doc, String term, String termDigits) {
         if (contains(doc.number(), term) || contains(doc.accessKey(), term)
-                || contains(doc.issuerRuc(), term) || contains(doc.issuerName(), term)) {
+                || contains(doc.issuerRuc(), term) || contains(doc.issuerName(), term)
+                || (doc.issueDate() != null && LIST_DATE.format(doc.issueDate()).contains(term))) {
             return true;
         }
         return termDigits.length() >= 3 && doc.number() != null

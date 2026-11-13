@@ -40,6 +40,10 @@ export default {
           strong: token('accent-strong'),
         },
         ai: token('ai'),
+        navy: {
+          DEFAULT: token('navy'),
+          strong: token('navy-strong'),
+        },
         good: token('good'),
         warn: token('warn'),
         danger: token('danger'),
