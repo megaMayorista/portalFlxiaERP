@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: portal-flxia
+  config:
+    # ERP instances the portal reads (one entry per FluxoERP instance). The file
+    # lives on the server, outside git, because it holds the read-only role's
+    # passwords. Adding an instance = adding an entry + restarting the backend.
+    import: optional:file:${PORTAL_INSTANCES_FILE:./config/instancias.yml}
+  jackson:
+    time-zone: America/Guayaquil
+  # The portal's own small database (accounts, sessions, attempts, downloads).
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5465}/${DB_NAME:portal_flxia}
+    username: ${DB_USER:portal_app}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: portal
+      maximum-pool-size: 6
+      minimum-idle: 1
+      connection-timeout: 10000
+  mail:
+    host: ${PORTAL_MAIL_HOST:smtp.gmail.com}
+    port: ${PORTAL_MAIL_PORT:587}
+    username: ${PORTAL_MAIL_USERNAME:}
+    password: ${PORTAL_MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+  web:
+    resources:
+      # JSON API only: no static files.
+      add-mappings: false
+  main:
+    banner-mode: off
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    # Never expose stack traces or internal details to the client.
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+    whitelabel:
+      enabled: false
+  tomcat:
+    threads:
+      max: 50
+    # Headers + cookie are small; the only bodies are a few short JSON fields.
+    max-swallow-size: 64KB
+    max-http-form-post-size: 16KB
+
+portal:
+  public-url: ${PORTAL_PUBLIC_URL:http://localhost:3035}
+  support-phone: ${PORTAL_SUPPORT_PHONE:096 060 8410}
+  # true in production (https). Locally the portal runs on plain http.
+  cookie-secure: ${PORTAL_COOKIE_SECURE:false}
+  session-idle-minutes: ${PORTAL_SESSION_IDLE_MINUTES:120}
+  session-max-hours: ${PORTAL_SESSION_MAX_HOURS:12}
+  temp-password-hours: 24
+  mail-from-name: ${PORTAL_MAIL_FROM_NAME:Portal de Descargas FluxoIA}
+  # Total wait for all instances in one listing; a slower one is reported as
+  # unavailable and the others are still shown.
+  instance-timeout-ms: 6000
+
+logging:
+  level:
+    com.zaxxer.hikari: WARN

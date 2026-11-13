@@ -1,0 +1,7 @@
+# Todo en LF: los scripts .sh corren en Linux (servidor y contenedores) y un
+# CRLF los rompe ("bad interpreter" o variables con \r al final).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary

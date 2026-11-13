@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Tokens del portal: los mismos colores de flxia.net (azul = datos,
+   naranja = acción, violeta = IA). Cada token es un triplete RGB para que
+   Tailwind pueda aplicar transparencias (bg-brand/10). Cambiar la marca se
+   hace AQUÍ; el modo oscuro solo redefine estos valores bajo .dark.
+   ========================================================================== */
+:root {
+  color-scheme: light;
+  --surface: 255 255 255;
+  --surface-muted: 246 248 251;
+  --surface-sunken: 237 241 248;
+  --ink: 10 18 32;
+  --ink-muted: 77 90 112;
+  --ink-faint: 133 147 168;
+  --line: 10 18 32;
+  --line-strong: 10 18 32;
+  --brand: 37 99 235;
+  --brand-strong: 29 78 216;
+  --brand-soft: 96 165 250;
+  --accent: 240 100 59;
+  --accent-strong: 221 79 38;
+  --ai: 124 58 237;
+  --good: 21 128 61;
+  --warn: 161 98 7;
+  --danger: 185 28 28;
+  --line-alpha: 0.09;
+  --line-strong-alpha: 0.16;
+}
+
+.dark {
+  color-scheme: dark;
+  --surface: 17 26 44;
+  --surface-muted: 10 18 32;
+  --surface-sunken: 24 36 60;
+  --ink: 238 242 248;
+  --ink-muted: 169 181 200;
+  --ink-faint: 120 134 158;
+  --line: 238 242 248;
+  --line-strong: 238 242 248;
+  --brand: 77 141 245;
+  --brand-strong: 96 165 250;
+  --brand-soft: 147 197 253;
+  --accent: 245 125 88;
+  --accent-strong: 248 148 116;
+  --ai: 167 139 250;
+  --good: 74 222 128;
+  --warn: 250 204 21;
+  --danger: 248 113 113;
+  --line-alpha: 0.10;
+  --line-strong-alpha: 0.18;
+}
+
+@layer base {
+  * {
+    border-color: rgb(var(--line) / var(--line-alpha));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: rgb(var(--surface-muted));
+    color: rgb(var(--ink));
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: 'Space Grotesk', Inter, system-ui, sans-serif;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand));
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  ::selection {
+    background: rgb(var(--brand) / 0.18);
+  }
+
+  /* The native date picker icon follows the theme. */
+  .dark input[type='date']::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border bg-surface shadow-soft;
+  }
+
+  .border-line-soft {
+    border-color: rgb(var(--line) / var(--line-alpha));
+  }
+
+  .input {
+    @apply w-full rounded-xl border bg-surface px-3.5 py-2.5 text-[15px] text-ink placeholder:text-ink-faint
+      transition focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15;
+    border-color: rgb(var(--line-strong) / var(--line-strong-alpha));
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand text-white shadow-brand hover:bg-brand-strong active:scale-[0.99];
+  }
+
+  .btn-ghost {
+    @apply btn border bg-surface text-ink hover:bg-surface-sunken;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  /* Ilustraciones del login: degradado del ala del isotipo. */
+  .panel-marca {
+    background:
+      radial-gradient(1200px 600px at -10% -10%, rgb(2 206 255 / 0.28), transparent 60%),
+      radial-gradient(900px 500px at 110% 110%, rgb(124 58 237 / 0.30), transparent 60%),
+      linear-gradient(150deg, #004a8b 0%, #0a5fb0 45%, #018bc9 100%);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Quien pide menos movimiento no recibe ninguno. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

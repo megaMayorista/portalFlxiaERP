@@ -1,0 +1,23 @@
+# =====================================================================
+#  Instancias de FluxoERP que lee el portal (copiar a instancias.yml)
+# ---------------------------------------------------------------------
+#  instancias.yml NO va a git: lleva las claves del rol portal_lectura.
+#  Cada bloque lo imprime scripts/preparar_instancia.sh listo para pegar.
+#  Sumar una instancia = pegar su bloque + `docker compose restart backend`.
+#
+#  code          identificador corto (minúsculas, números, guiones); va en
+#                las URL de descarga, no cambiarlo después
+#  name          nombre que se muestra si la instancia no responde
+#  jdbc-url      host.docker.internal + el DB_PORT del .env de la instancia
+#  environments  ambientes SRI que se muestran: [2] = solo producción
+#  enabled       false para sacarla sin borrar el bloque
+# =====================================================================
+portal:
+  instances:
+    - code: megamayorista
+      name: "Mega Mayorista"
+      jdbc-url: jdbc:postgresql://host.docker.internal:5433/erp_megamayorista
+      username: portal_lectura
+      password: "la-imprime-preparar_instancia.sh"
+      environments: [2]
+      enabled: true

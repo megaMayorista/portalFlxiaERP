@@ -1,0 +1,16 @@
+# Secretos: nunca a git
+.env
+config/instancias.yml
+
+# Builds
+backend/target/
+frontend/node_modules/
+frontend/dist/
+
+# Editores y sistema
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.log

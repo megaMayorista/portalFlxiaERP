@@ -1,0 +1,101 @@
+# =====================================================================
+#  Portal de descargas FluxoIA (www.portal.flxia.net)
+# ---------------------------------------------------------------------
+#  Tres contenedores:
+#   - portal_postgres: base propia y chica (cuentas, sesiones, intentos,
+#     bitácora de descargas). Solo escucha en 127.0.0.1.
+#   - portal_backend: API Spring Boot. SIN puerto publicado: solo se llega
+#     a él a través del nginx del frontend.
+#   - portal_frontend: nginx con la SPA y el proxy de /api. En producción
+#     escucha solo en 127.0.0.1; el nginx del host le pone el HTTPS.
+#
+#  Los comprobantes NO se copian: el backend los lee en vivo de la base de
+#  cada instancia del ERP (config/instancias.yml), por host.docker.internal
+#  y el DB_PORT que cada instancia publica.
+# =====================================================================
+name: portalflxia
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: portal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      # UTF8 obligatorio: la imagen alpine nace en SQL_ASCII y los acentos
+      # de los nombres llegarían como "?" (mismo motivo que en el ERP).
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --encoding=UTF8 --lc-collate=C --lc-ctype=C"
+      TZ: America/Guayaquil
+      # Los lee 02-usuario-app.sh para crear el rol de mínimo privilegio.
+      APP_DB_USER: ${APP_DB_USER}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5465}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init_portal.sql:/docker-entrypoint-initdb.d/01-init-portal.sql:ro
+      - ./docker/postgres/02-usuario-app.sh:/docker-entrypoint-initdb.d/02-usuario-app.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portal_backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      # El backend nunca usa la cuenta dueña: solo el rol restringido.
+      DB_USER: ${APP_DB_USER}
+      DB_PASSWORD: ${APP_DB_PASSWORD}
+      SERVER_PORT: 8080
+      PORTAL_INSTANCES_FILE: /app/config/instancias.yml
+      PORTAL_PUBLIC_URL: ${PORTAL_PUBLIC_URL}
+      PORTAL_SUPPORT_PHONE: ${PORTAL_SUPPORT_PHONE}
+      PORTAL_COOKIE_SECURE: ${PORTAL_COOKIE_SECURE}
+      PORTAL_MAIL_HOST: ${PORTAL_MAIL_HOST}
+      PORTAL_MAIL_PORT: ${PORTAL_MAIL_PORT}
+      PORTAL_MAIL_USERNAME: ${PORTAL_MAIL_USERNAME}
+      PORTAL_MAIL_PASSWORD: ${PORTAL_MAIL_PASSWORD}
+      PORTAL_MAIL_FROM_NAME: ${PORTAL_MAIL_FROM_NAME}
+    # Las bases del ERP se alcanzan por el puerto que cada instancia publica
+    # en el host (en Linux este alias no existe si no se declara).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./config/instancias.yml:/app/config/instancias.yml:ro
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/public/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: portal_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_BIND:-127.0.0.1}:${FRONTEND_PORT:-3035}:3000"
+    mem_limit: 64m
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+    name: portal_pgdata
