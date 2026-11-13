@@ -186,7 +186,7 @@ docker exec -it portal_postgres psql -U portal_admin -d portal_flxia -c "SELECT 
 Reemplazar la cédula de ejemplo:
 
 ```bash
-docker exec -it portal_postgres psql -U portal_admin -d portal_flxia -c "DELETE FROM portal.auth_attempts WHERE identification = '1712345678' AND NOT success;"
+docker exec -it portal_postgres psql -U portal_admin -d portal_flxia -c "DELETE FROM portal.auth_attempts WHERE identification = '1712345678' AND success = 0;"
 ```
 
 ### Volver atrás

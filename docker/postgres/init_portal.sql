@@ -76,9 +76,11 @@ CREATE TABLE IF NOT EXISTS portal.auth_attempts (
     kind            VARCHAR(10)  NOT NULL,
     identification  VARCHAR(13),
     ip_address      VARCHAR(45)  NOT NULL,
-    success         BOOLEAN      NOT NULL,
+    -- 1 = succeeded, 0 = failed (1/0 instead of a boolean, easier to read in DBeaver).
+    success         SMALLINT     NOT NULL,
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    CONSTRAINT chk_auth_attempts_kind CHECK (kind IN ('LOGIN', 'RECOVERY'))
+    CONSTRAINT chk_auth_attempts_kind CHECK (kind IN ('LOGIN', 'RECOVERY')),
+    CONSTRAINT chk_auth_attempts_success CHECK (success IN (0, 1))
 );
 CREATE INDEX IF NOT EXISTS ix_auth_attempts_identification ON portal.auth_attempts (identification, kind, created_at);
 CREATE INDEX IF NOT EXISTS ix_auth_attempts_ip ON portal.auth_attempts (ip_address, kind, created_at);

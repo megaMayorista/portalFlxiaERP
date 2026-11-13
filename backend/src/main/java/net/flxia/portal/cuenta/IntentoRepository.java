@@ -16,26 +16,27 @@ public class IntentoRepository {
         this.jdbc = jdbc;
     }
 
+    /** success is stored as 1 (succeeded) or 0 (failed). */
     public void record(String kind, String identification, String ip, boolean success) {
         jdbc.update("INSERT INTO portal.auth_attempts (kind, identification, ip_address, success) VALUES (?, ?, ?, ?)",
-                kind, identification, ip, success);
+                kind, identification, ip, success ? 1 : 0);
     }
 
     /** Failed logins of an identification in the window, counting only after its last successful one. */
     public int failedLoginsOf(String identification, int windowMinutes) {
         Integer count = jdbc.queryForObject(
                 "SELECT count(*) FROM portal.auth_attempts"
-                        + " WHERE identification = ? AND kind = 'LOGIN' AND NOT success"
+                        + " WHERE identification = ? AND kind = 'LOGIN' AND success = 0"
                         + " AND created_at > GREATEST(now() - make_interval(mins => ?),"
                         + "   COALESCE((SELECT max(created_at) FROM portal.auth_attempts"
-                        + "             WHERE identification = ? AND kind = 'LOGIN' AND success), '-infinity'))",
+                        + "             WHERE identification = ? AND kind = 'LOGIN' AND success = 1), '-infinity'))",
                 Integer.class, identification, windowMinutes, identification);
         return count == null ? 0 : count;
     }
 
     public int failedLoginsFromIp(String ip, int windowMinutes) {
         Integer count = jdbc.queryForObject(
-                "SELECT count(*) FROM portal.auth_attempts WHERE ip_address = ? AND kind = 'LOGIN' AND NOT success"
+                "SELECT count(*) FROM portal.auth_attempts WHERE ip_address = ? AND kind = 'LOGIN' AND success = 0"
                         + " AND created_at > now() - make_interval(mins => ?)",
                 Integer.class, ip, windowMinutes);
         return count == null ? 0 : count;
