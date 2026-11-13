@@ -206,13 +206,24 @@ public final class FormatoEntrada {
         return value != null && INSTANCE_CODE.matcher(value).matches();
     }
 
+    /**
+     * Domains that can never receive mail (RFC 2606 / 6761): an invoice typed
+     * with "cliente@prueba.local" must not swallow the temporary password.
+     */
+    private static final Pattern UNDELIVERABLE_DOMAIN = Pattern.compile(
+            "(?i).*@(.+\\.)?(local|localhost|test|example|invalid|lan|internal)$"
+                    + "|(?i).*@(.+\\.)?example\\.(com|net|org)$");
+
     /** The e-mail stored on an invoice, if it looks deliverable; otherwise null. */
     public static String usableEmail(String value) {
         if (value == null) {
             return null;
         }
         String email = value.strip();
-        return email.length() <= 150 && EMAIL.matcher(email).matches() ? email : null;
+        if (email.length() > 150 || !EMAIL.matcher(email).matches() || UNDELIVERABLE_DOMAIN.matcher(email).matches()) {
+            return null;
+        }
+        return email;
     }
 
     /** "cristian@gmail.com" → "cr******@gmail.com". */

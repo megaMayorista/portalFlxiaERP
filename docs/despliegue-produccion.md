@@ -157,6 +157,16 @@ Se corre su línea del paso 4 (con `INSTANCIAS_YML` exportado) y después `docke
 
 En su bloque de `config/instancias.yml` se pone `enabled: false` y se reinicia el backend.
 
+### Probar el correo (SMTP) sin tocar a ningún cliente
+
+Envía el correo de la contraseña temporal, con una clave de ejemplo y el aviso "Correo de prueba", a la dirección que se indique. Corre en un contenedor aparte que se borra solo, así que el portal sigue atendiendo:
+
+```bash
+cd /opt/portalFlxiaERP && docker compose run --rm --no-deps backend --spring.main.web-application-type=none --enviar-correo-prueba=SU_CORREO@gmail.com 2>&1 | grep -E "CORREO|ERROR"
+```
+
+Si sale bien, la última línea dice `CORREO DE PRUEBA ENVIADO`. Si no, dice `EL CORREO DE PRUEBA NO SALIÓ` con la causa; lo más común es una clave de aplicación mal copiada.
+
 ### Cambiar la clave de Gmail
 
 Se edita `.env` y se recrea el backend. Con `restart` no basta: el `.env` se lee al crear el contenedor.

@@ -271,6 +271,11 @@ function DocumentCard({ doc, toast }) {
             <FiCalendar aria-hidden="true" /> {formatDate(doc.issueDate)}
           </span>
         </div>
+        {!doc.authorized && (
+          <p className="-mt-1 rounded-xl border border-warn/25 bg-warn/10 px-3 py-1.5 text-[11px] font-semibold text-warn">
+            Modo de prueba (solo local): este comprobante no está autorizado por el SRI.
+          </p>
+        )}
 
         <div className="min-w-0">
           <p className="font-display text-xl font-bold tracking-tight text-ink tabular">{doc.number}</p>

@@ -19,5 +19,7 @@ public record ComprobanteDTO(
         String accessKey,
         BigDecimal total,
         boolean hasPdf,
-        boolean hasXml) {
+        boolean hasXml,
+        /** Always true in production; false only for local test-mode documents. */
+        boolean authorized) {
 }

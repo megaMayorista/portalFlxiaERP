@@ -19,18 +19,20 @@ public final class InstanciaERP {
     private final String name;
     private final List<Integer> environments;
     private final String environmentsSql;
+    private final boolean testMode;
     private final HikariDataSource dataSource;
     private final JdbcTemplate jdbc;
 
     private volatile boolean creditNotesAvailable;
     private volatile long creditNotesCheckedAt;
 
-    InstanciaERP(String code, String name, List<Integer> environments, HikariDataSource dataSource) {
+    InstanciaERP(String code, String name, List<Integer> environments, boolean testMode, HikariDataSource dataSource) {
         this.code = code;
         this.name = name;
         this.environments = List.copyOf(environments);
         // Integers from the configuration file (validated 1 or 2), never user input.
         this.environmentsSql = this.environments.stream().map(String::valueOf).collect(Collectors.joining(","));
+        this.testMode = testMode;
         this.dataSource = dataSource;
         this.jdbc = new JdbcTemplate(dataSource);
         this.jdbc.setQueryTimeout(8);
@@ -51,6 +53,20 @@ public final class InstanciaERP {
     /** "2" or "1,2", ready for {@code IN (...)}. */
     public String environmentsSql() {
         return environmentsSql;
+    }
+
+    /**
+     * SRI state accepted for invoices. Always AUTORIZADO, except in local test
+     * mode (RegistroInstancias only allows it over http), where any state with a
+     * comprobante row is shown so the flows can be tried without a certificate.
+     */
+    public String invoiceStatusSql() {
+        return testMode ? "c.cse_estado IS NOT NULL" : "c.cse_estado = 'AUTORIZADO'";
+    }
+
+    /** Same rule for credit notes. */
+    public String creditNoteStatusSql() {
+        return testMode ? "n.ccr_estado_sri IS NOT NULL" : "n.ccr_estado_sri = 'AUTORIZADO'";
     }
 
     public JdbcTemplate jdbc() {

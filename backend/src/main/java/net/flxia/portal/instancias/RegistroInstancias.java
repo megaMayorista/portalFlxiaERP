@@ -42,15 +42,24 @@ public class RegistroInstancias {
 
     public RegistroInstancias(PropiedadesPortal properties) {
         this.timeoutMs = properties.instanceTimeoutMs();
+        boolean local = !properties.cookieSecure();
         for (PropiedadesPortal.Instancia config : properties.instances()) {
             if (!config.isEnabled()) {
                 log.info("ERP instance {} is disabled in the configuration", config.code());
                 continue;
             }
             validate(config);
+            boolean testMode = config.wantsTestMode() && local;
+            if (config.wantsTestMode() && !local) {
+                log.error("ERP instance {} asks for test-mode, IGNORED: it is only allowed when the portal runs locally (http)",
+                        config.code());
+            } else if (testMode) {
+                log.warn("ERP instance {} in TEST MODE: it also shows documents NOT authorized by the SRI (local only)",
+                        config.code());
+            }
             instances.put(config.code(), new InstanciaERP(config.code(), config.name(),
                     config.environments() == null || config.environments().isEmpty() ? List.of(2) : config.environments(),
-                    pool(config)));
+                    testMode, pool(config)));
             log.info("ERP instance registered: {} ({})", config.code(), config.name());
         }
         if (instances.isEmpty()) {

@@ -11,6 +11,9 @@
 #  jdbc-url      host.docker.internal + el DB_PORT del .env de la instancia
 #  environments  ambientes SRI que se muestran: [2] = solo producción
 #  enabled       false para sacarla sin borrar el bloque
+#  test-mode     SOLO LOCAL: true muestra también comprobantes que el SRI no
+#                autorizó (un ERP local no tiene firma electrónica). El portal
+#                lo ignora si corre por https, o sea, nunca vale en producción.
 # =====================================================================
 portal:
   instances:

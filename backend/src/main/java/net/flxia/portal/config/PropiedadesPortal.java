@@ -46,6 +46,9 @@ public record PropiedadesPortal(
      * @param password     that role's password in this instance
      * @param environments SRI environments shown: [2] = production only
      * @param enabled      false to take an instance out without deleting its entry
+     * @param testMode     LOCAL ONLY: also show documents the SRI has not authorized
+     *                     (a local ERP has no signing certificate). Ignored when the
+     *                     portal runs over https (production).
      */
     public record Instancia(
             String code,
@@ -54,10 +57,15 @@ public record PropiedadesPortal(
             String username,
             String password,
             List<Integer> environments,
-            Boolean enabled) {
+            Boolean enabled,
+            Boolean testMode) {
 
         public boolean isEnabled() {
             return enabled == null || enabled;
+        }
+
+        public boolean wantsTestMode() {
+            return Boolean.TRUE.equals(testMode);
         }
     }
 }

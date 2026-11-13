@@ -75,5 +75,9 @@ class FormatoEntradaTest {
         assertEquals("a***@x.ec", FormatoEntrada.maskEmail("ab@x.ec"));
         assertNull(FormatoEntrada.usableEmail("sin correo"));
         assertEquals("ana@mail.com", FormatoEntrada.usableEmail(" ana@mail.com "));
+        assertNull(FormatoEntrada.usableEmail("cliente@prueba.local"), "reserved: never delivered");
+        assertNull(FormatoEntrada.usableEmail("x@demo.test"));
+        assertNull(FormatoEntrada.usableEmail("x@example.com"));
+        assertEquals("ventas@localhost-shop.ec", FormatoEntrada.usableEmail("ventas@localhost-shop.ec"));
     }
 }

@@ -13,12 +13,8 @@ import Logo from './Logo';
  * secciones en una píldora, menú de usuario con avatar y, en celular, barra de
  * pestañas abajo. El contenido ocupa todo el ancho (hasta 1680 px).
  */
-export default function PortalLayout({ title, children }) {
+export default function PortalLayout({ children }) {
   const { user } = useSession();
-
-  useEffect(() => {
-    document.title = `${title} · Portal de Descargas FluxoIA`;
-  }, [title]);
 
   const tab = ({ isActive }) =>
     `inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${

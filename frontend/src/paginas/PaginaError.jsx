@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { FiArrowLeft, FiPhone } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import ThemeButton from '../componentes/BotonTema';
@@ -29,10 +28,6 @@ export default function ErrorPage({ code = 404 }) {
   const support = useSupport();
   const view = VIEWS[code] || VIEWS[404];
   const { Illustration } = view;
-
-  useEffect(() => {
-    document.title = `${code} · ${view.eyebrow} · Portal de Descargas FluxoIA`;
-  }, [code, view.eyebrow]);
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0a1220] text-white">
