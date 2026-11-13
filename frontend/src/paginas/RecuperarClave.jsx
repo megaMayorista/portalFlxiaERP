@@ -50,7 +50,7 @@ export default function RecoverPage() {
           <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-good/10 text-2xl text-good">
             {byEmail ? <FiMail aria-hidden="true" /> : <FiShield aria-hidden="true" />}
           </span>
-          <h2 className="mt-4 text-2xl font-bold text-ink">{byEmail ? 'Revise su correo' : 'Contraseña restablecida'}</h2>
+          <h2 className="mt-4 font-display text-[26px] font-bold text-ink">{byEmail ? 'Revise su correo' : 'Contraseña restablecida'}</h2>
           {byEmail ? (
             <p className="mt-3 text-sm leading-relaxed text-ink-muted">
               Enviamos una contraseña temporal a <strong className="text-ink">{result.maskedEmail}</strong>, el correo
@@ -86,7 +86,10 @@ export default function RecoverPage() {
       <Link to="/ingreso" className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
         <FiArrowLeft aria-hidden="true" /> Volver
       </Link>
-      <h2 className="mt-3 text-2xl font-bold text-ink">¿Olvidó su contraseña?</h2>
+      <p className="eyebrow mt-4 text-brand">
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Recuperar acceso
+      </p>
+      <h2 className="mt-2 font-display text-[28px] font-bold leading-tight text-ink">¿Olvidó su contraseña?</h2>
       <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
         Ingrese su RUC o cédula. Si sus facturas tienen un correo, le enviaremos una contraseña temporal; si no, su
         contraseña volverá a ser su RUC o cédula.

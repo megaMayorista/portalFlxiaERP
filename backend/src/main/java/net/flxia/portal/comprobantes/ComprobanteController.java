@@ -93,8 +93,11 @@ public class ComprobanteController {
         String fileName = documentType.filePrefix() + "_" + number + (pdf ? ".pdf" : ".xml");
         return ResponseEntity.ok()
                 .contentType(pdf ? MediaType.APPLICATION_PDF : new MediaType("application", "xml", StandardCharsets.UTF_8))
+                // Plain ASCII name on purpose: with a charset Spring also writes
+                // filename="=?UTF-8?Q?FACTURA=5F...?=" (RFC 2047) and browsers saved
+                // the file as "=_UTF-8_Q_FACTURA...pdf_=", without a usable extension.
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.attachment().filename(fileName, StandardCharsets.UTF_8).build().toString())
+                        ContentDisposition.attachment().filename(fileName).build().toString())
                 .contentLength(file.content().length)
                 .body(file.content());
     }

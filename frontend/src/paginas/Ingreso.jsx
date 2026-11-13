@@ -41,7 +41,10 @@ export default function LoginPage() {
 
   return (
     <AccessLayout>
-      <h2 className="text-2xl font-bold text-ink">Iniciar sesión</h2>
+      <p className="eyebrow text-brand">
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Bienvenido
+      </p>
+      <h2 className="mt-2 font-display text-[28px] font-bold leading-tight text-ink">Iniciar sesión</h2>
       <p className="mt-1.5 text-sm text-ink-muted">Descargue el PDF y el XML de sus comprobantes electrónicos.</p>
 
       {/* En celular el panel de la izquierda no se ve: el aviso del primer ingreso va aquí. */}

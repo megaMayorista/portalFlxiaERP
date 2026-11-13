@@ -1,12 +1,14 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import PortalLayout from './componentes/DisposicionPortal';
 import Logo from './componentes/Logo';
 import { useSession } from './contexto/SesionContexto';
 import LoginPage from './paginas/Ingreso';
 import DocumentsPage from './paginas/MisComprobantes';
-import NotFoundPage from './paginas/NoEncontrada';
+import ErrorPage from './paginas/PaginaError';
 import ProfilePage from './paginas/Perfil';
 import RecoverPage from './paginas/RecuperarClave';
+import { setForbiddenHandler } from './utilidades/api';
 
 function Loading() {
   return (
@@ -39,14 +41,22 @@ function Home() {
 
 export default function App() {
   const { loading } = useSession();
+  const navigate = useNavigate();
+
+  // An API 403 (FORBIDDEN) takes the person to the 403 view.
+  useEffect(() => {
+    setForbiddenHandler(() => navigate('/acceso-denegado', { replace: true }));
+  }, [navigate]);
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/ingreso" element={loading ? <Loading /> : <LoginPage />} />
       <Route path="/recuperar" element={loading ? <Loading /> : <RecoverPage />} />
-      <Route path="/comprobantes" element={<Protected title="Comprobantes electrónicos recibidos"><DocumentsPage /></Protected>} />
-      <Route path="/perfil" element={<Protected title="Perfil de usuario" allowWhileForced><ProfilePage /></Protected>} />
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="/comprobantes" element={<Protected title="Mis comprobantes"><DocumentsPage /></Protected>} />
+      <Route path="/perfil" element={<Protected title="Mi perfil" allowWhileForced><ProfilePage /></Protected>} />
+      <Route path="/acceso-denegado" element={<ErrorPage code={403} />} />
+      <Route path="*" element={<ErrorPage code={404} />} />
     </Routes>
   );
 }

@@ -22,6 +22,19 @@ export const DOCUMENT_TYPES = {
   CREDIT_NOTE: { label: 'Nota de crédito', short: 'NC' },
 };
 
+/** "FALCONES ANDRADE SIMON" → "Falcones Andrade Simon" (the ERP stores names in capitals). */
+export function titleCase(text) {
+  return String(text || '')
+    .toLocaleLowerCase('es')
+    .replace(/(^|[\s.\-])(\p{L})/gu, (_, separator, letter) => separator + letter.toLocaleUpperCase('es'));
+}
+
+/** Two initials for the avatar: "FALCONES ANDRADE" → "FA". */
+export function initials(name) {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || '?';
+}
+
 /** "Cédula" or "RUC", for messages. */
 export function identificationKind(identification) {
   return String(identification || '').length === 13 ? 'RUC' : 'cédula';

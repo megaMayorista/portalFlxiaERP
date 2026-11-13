@@ -90,6 +90,32 @@ export function DownloadIllustration() {
   );
 }
 
+/** Documento perdido con lupa: para la vista 404. */
+export function LostDocumentIllustration() {
+  return (
+    <svg viewBox="0 0 440 340" className="h-full w-full" aria-hidden="true">
+      <circle cx="220" cy="170" r="150" fill="#ffffff" opacity="0.06" />
+      <g transform="rotate(-7 200 170)">
+        <rect x="110" y="55" width="190" height="240" rx="18" fill="#ffffff" opacity="0.25" />
+      </g>
+      <rect x="130" y="45" width="190" height="245" rx="18" fill="#ffffff" />
+      <rect x="150" y="68" width="34" height="34" rx="9" fill={DEEP} />
+      <path d="M159 94 V78 h17 M159 86 h12" stroke={CYAN} strokeWidth="4" strokeLinecap="round" fill="none" />
+      <rect x="194" y="72" width="90" height="9" rx="4.5" fill={DEEP} opacity="0.85" />
+      <rect x="194" y="88" width="60" height="7" rx="3.5" fill={LINE} />
+      {[124, 144, 164].map((y) => (
+        <rect key={y} x="150" y={y} width="150" height="7" rx="3.5" fill={LINE} strokeDasharray="6 6" />
+      ))}
+      <text x="225" y="250" textAnchor="middle" fontFamily="Space Grotesk, Inter, sans-serif" fontWeight="700" fontSize="58" fill={LINE}>?</text>
+      <g>
+        <circle cx="318" cy="210" r="46" fill="none" stroke={ORANGE} strokeWidth="12" />
+        <circle cx="318" cy="210" r="40" fill="#ffffff" opacity="0.18" />
+        <path d="M350 244 l40 40" stroke={ORANGE} strokeWidth="16" strokeLinecap="round" />
+      </g>
+    </svg>
+  );
+}
+
 /** Credencial con RUC / cédula y escudo: el acceso es personal. */
 export function SecurityIllustration() {
   return (

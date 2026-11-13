@@ -14,10 +14,16 @@ export class ApiError extends Error {
 const GENERIC_ERROR = 'No pudimos conectar con el portal. Revise su conexión e inténtelo de nuevo.';
 
 let onSessionExpired = () => {};
+let onForbidden = () => {};
 
 /** The session context registers here what to do when the API answers 401. */
 export function setSessionExpiredHandler(handler) {
   onSessionExpired = handler;
+}
+
+/** The app registers here where to go when the API answers 403 (the 403 view). */
+export function setForbiddenHandler(handler) {
+  onForbidden = handler;
 }
 
 async function readError(response) {
@@ -52,6 +58,7 @@ export async function api(path, { method = 'GET', body, silent401 = false } = {}
   if (!response.ok) {
     const error = await readError(response);
     if (response.status === 401 && !silent401) onSessionExpired();
+    if (response.status === 403 && error.code === 'FORBIDDEN') onForbidden();
     throw error;
   }
   if (response.status === 204) return null;
@@ -59,10 +66,30 @@ export async function api(path, { method = 'GET', body, silent401 = false } = {}
 }
 
 /**
- * Downloads a PDF / XML through fetch, so an error (not yours, no PDF, issuer
- * down) is shown as a message instead of a raw page.
+ * File name from Content-Disposition. filename*= (RFC 5987) wins; an RFC 2047
+ * value ("=?UTF-8?Q?...?=") is never used as a name: that is what made browsers
+ * save "=_UTF-8_Q_FACTURA...pdf_=" without a usable extension.
  */
-export async function downloadFile(path) {
+function nameFromHeader(disposition) {
+  if (!disposition) return null;
+  const extended = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(disposition);
+  if (extended) {
+    try {
+      return decodeURIComponent(extended[1].trim());
+    } catch {
+      /* malformed: try the plain one */
+    }
+  }
+  const plain = /filename\s*=\s*"?([^";]+)"?/i.exec(disposition);
+  return plain && !plain[1].startsWith('=?') ? plain[1].trim() : null;
+}
+
+/**
+ * Downloads a PDF / XML through fetch, so an error (not yours, no PDF, issuer
+ * down) is shown as a message instead of a raw page. `fileName` is the name the
+ * portal builds itself (FACTURA_001-002-000001159.pdf); the header is a fallback.
+ */
+export async function downloadFile(path, fileName) {
   let response;
   try {
     response = await fetch(`/api${path}`, { credentials: 'same-origin' });
@@ -75,14 +102,13 @@ export async function downloadFile(path) {
     throw error;
   }
   const blob = await response.blob();
-  const disposition = response.headers.get('Content-Disposition') || '';
-  const match = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(disposition);
-  const fileName = match ? decodeURIComponent(match[1] || match[2]) : 'comprobante';
+  const name = fileName || nameFromHeader(response.headers.get('Content-Disposition')) || 'comprobante';
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = fileName;
+  link.download = name;
+  link.rel = 'noopener';
   document.body.appendChild(link);
   link.click();
   link.remove();

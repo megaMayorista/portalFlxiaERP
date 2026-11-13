@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -43,16 +44,21 @@ public class ComprobanteService {
 
     public PaginaComprobantesDTO list(String identification, Filtro type, String search,
                                       LocalDate from, LocalDate to, int page, int size) {
-        boolean invoices = type == Filtro.ALL || type == Filtro.INVOICE;
-        boolean creditNotes = type == Filtro.ALL || type == Filtro.CREDIT_NOTE;
-
+        // Both kinds always: the welcome panel shows how many of each there are,
+        // whatever filter is applied. The type filter runs here, in memory.
         ResultadoParalelo<List<ComprobanteDTO>> result =
-                registry.queryAll(instance -> queries.list(instance, identification, invoices, creditNotes));
+                registry.queryAll(instance -> queries.list(instance, identification, true, true));
+        List<ComprobanteDTO> everything = result.values().stream().flatMap(List::stream).toList();
+        long invoiceCount = everything.stream().filter(doc -> doc.type() == TipoComprobante.INVOICE).count();
+        LocalDateTime lastIssueDate = everything.stream().map(ComprobanteDTO::issueDate)
+                .filter(java.util.Objects::nonNull).max(Comparator.naturalOrder()).orElse(null);
 
         String term = normalize(FormatoEntrada.cleanSearch(search));
         String termDigits = NON_DIGITS.matcher(term).replaceAll("");
-        List<ComprobanteDTO> all = result.values().stream()
-                .flatMap(List::stream)
+        List<ComprobanteDTO> all = everything.stream()
+                .filter(doc -> type == Filtro.ALL
+                        || (type == Filtro.INVOICE && doc.type() == TipoComprobante.INVOICE)
+                        || (type == Filtro.CREDIT_NOTE && doc.type() == TipoComprobante.CREDIT_NOTE))
                 .filter(doc -> matchesDates(doc, from, to))
                 .filter(doc -> term.isEmpty() || matchesSearch(doc, term, termDigits))
                 .sorted(Comparator.comparing(ComprobanteDTO::issueDate, Comparator.nullsLast(Comparator.reverseOrder()))
@@ -65,7 +71,8 @@ public class ComprobanteService {
         int start = (current - 1) * pageSize;
         List<ComprobanteDTO> items = all.subList(Math.min(start, all.size()), Math.min(start + pageSize, all.size()));
 
-        return new PaginaComprobantesDTO(items, all.size(), current, pageSize, totalPages, result.unavailable());
+        return new PaginaComprobantesDTO(items, all.size(), current, pageSize, totalPages, result.unavailable(),
+                everything.size(), invoiceCount, everything.size() - invoiceCount, lastIssueDate);
     }
 
     private static boolean matchesDates(ComprobanteDTO doc, LocalDate from, LocalDate to) {
